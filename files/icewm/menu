@@ -1,0 +1,4 @@
+prog "XTerm" xterm xterm -bg black -fg white -geometry 80x24
+prog "X File Editor" xfe xfe
+prog "Geany" geany geany
+prog "Mozilla Firefox" ! x-www-browser

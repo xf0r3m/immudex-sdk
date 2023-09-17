@@ -1,0 +1,150 @@
+#!/bin/bash
+
+GREEN="\e[32m";
+ENDCOLOR="\e[0m";
+
+set -e
+
+echo "-== Starting immudex-sdk_build: $(date) ==-" >> immudex-sdk_build.log;
+
+function help() {
+  echo "-== Help printed: $(date) ==-" >> immudex-sdk_build.log;
+  echo "immudex-sdk-build - script for building immudex-sdk LiveCD.";
+  echo "@ 2023 morketsmerke.org";
+  echo "Usage:";
+  echo " ./immudex-sdk-build  --<amd64/i386> <version>";
+}
+
+function create_enviroment() {
+  echo -n "Installation of packages needed to build immudex-sdk...";
+  sudo apt update >> immudex-sdk_build.log 2>&1;
+  sudo apt install -y debootstrap squashfs-tools xorriso isolinux syslinux-efi grub-pc-bin grub-efi-amd64-bin mtools dosfstools >> immudex-sdk_build.log 2>&1;
+  if [ $? -eq 0 ]; then echo -e "[ ${GREEN}OK${ENDCOLOR} ]"; fi
+}
+
+#Distributing immudex-sdk as meta-distribution there is no such thing like
+#updates. For every new commit in Git service you build new iso image.
+
+#Determing requested architecture and
+if [ "$1" ] && [ "$1" = "--amd64" ]; then arch="64";
+elif [ "$1" ] && [ "$1" = "--i386" ]; then arch="32";
+else
+  help;
+  exit 1;
+fi
+
+if [ "$2" ]; then
+  version=$2
+else
+  help;
+  exit 1;
+fi
+
+if [ ! -f /sbin/debootstrap ]; then
+  create_enviroment 
+fi
+
+#Creating root directory sturcture for immudex-sdk build:
+if [ ! -d ${HOME}/build/immudex-sdk/${arch} ]; then
+  echo -n "Creating root directory structure for immudex-sdk build...";
+  mkdir -pv ${HOME}/build/immudex-sdk/${arch} >> immudex-sdk_build.log 2>&1;
+  if [ $? -eq 0 ]; then echo -e "[ ${GREEN}OK${ENDCOLOR} ]"; fi
+fi
+
+#Fetching testing vanilla Debian base system files:
+echo -n "Fetching testing vanilla Debian base system files...";
+sudo /sbin/debootstrap --arch=$(echo $1 | sed 's/-//g') --variant=minbase stable ${HOME}/build/immudex-sdk/${arch}/chroot http://deb.debian.org/debian >> immudex-sdk_build.log 2>&1;
+if [ $? -eq 0 ]; then echo -e "[ ${GREEN}OK${ENDCOLOR} ]"; fi
+
+#Copying chroot script to chroot directory:
+echo -n "Copying chroot script to chroot directory...";
+sudo cp -vv ${HOME}/immudex-sdk/versions/base.sh ${HOME}/build/immudex-sdk/${arch}/chroot >> immudex-sdk_build.log 2>&1;
+if [ $? -eq 0 ]; then echo -e "[ ${GREEN}OK${ENDCOLOR} ]"; fi
+
+#Executing chroot script, at least i trying:
+sudo chroot ${HOME}/build/immudex-sdk/${arch}/chroot /bin/bash /base.sh $arch;
+
+#Removing chroot script.
+echo -n "Remove chroot script...";
+sudo rm -vf ${HOME}/build/immudex-sdk/${arch}/chroot/base.sh >> immudex-sdk_build.log 2>&1;
+if [ $? -eq 0 ]; then echo -e "[ ${GREEN}OK${ENDCOLOR} ]"; fi
+
+#Creating LiveCD directory structure:
+echo -n "Creating LiveCD directory structure...";
+mkdir -pv ${HOME}/build/immudex-sdk/${arch}/{staging/{EFI/boot,boot/grub/x86_64-efi,isolinux,live},tmp} >> immudex-sdk_build.log 2>&1;
+if [ $? -eq 0 ]; then echo -e "[ ${GREEN}OK${ENDCOLOR} ]"; fi
+
+#Creating squasfs archive:
+echo -n "Creating squashfs archive...";
+sudo mksquashfs ${HOME}/build/immudex-sdk/${arch}/chroot ${HOME}/build/immudex-sdk/${arch}/staging/live/filesystem.squashfs -e boot >> immudex-sdk_build.log 2>&1;
+if [ $? -eq 0 ]; then echo -e "[ ${GREEN}OK${ENDCOLOR} ]"; fi
+
+#Copying kernel and initrd (core files) from chroot:
+echo -n "Copying kernel and initrd (core files) from chroot...";
+cp -v $(ls -v ${HOME}/build/immudex-sdk/${arch}/chroot/boot/vmlinuz-* | tail -1) ${HOME}/build/immudex-sdk/${arch}/staging/live/vmlinuz >> immudex-sdk_build.log 2>&1;
+cp -v $(ls -v ${HOME}/build/immudex-sdk/${arch}/chroot/boot/initrd.img-* | tail -1) ${HOME}/build/immudex-sdk/${arch}/staging/live/initrd >> immudex-sdk_build.log 2>&1;
+if [ $? -eq 0 ]; then echo -e "[ ${GREEN}OK${ENDCOLOR} ]"; fi
+
+#Setting version for this image:
+echo "-==Setting version for immudex-sdk image: $(date)==-" >> immudex-sdk_build.log;
+echo -n "Setting version for this immudex-sdk image...";
+echo $version | tee ${HOME}/build/immudex-sdk/${arch}/staging/live/version >> immudex-sdk_build.log 2>&1;
+if [ $? -eq 0 ]; then echo -e "[ ${GREEN}OK${ENDCOLOR} ]"; fi
+
+#Getting and copying bootloader files
+echo -n "Copying bootloader files...";
+arch2=$(echo $1 | sed 's/-//g');
+cp -v ${HOME}/immudex-sdk/isolinux/${arch2}/* ${HOME}/build/immudex-sdk/${arch}/staging/isolinux >> immudex-sdk_build.log 2>&1;
+cp -v ${HOME}/immudex-sdk/grub/${arch2}/* ${HOME}/build/immudex-sdk/${arch}/staging/boot/grub >> immudex-sdk_build.log 2>&1;
+if [ $? -eq 0 ]; then echo -e "[ ${GREEN}OK${ENDCOLOR} ]"; fi
+
+#Create grubstandalone config:
+echo "-==Create grub-standalone config: $(date)==-" >> immudex-sdk_build.log;
+echo -n "Create grub-standalone config...";
+cat >> ${HOME}/build/immudex-sdk/${arch}/tmp/grub-standalone.cfg <<EOF
+search --set=root --file /DEBIAN
+set prefix=(\$root)/boot/grub
+configfile /boot/grub/grub.cfg
+EOF
+if [ $? -eq 0 ]; then echo -e "[ ${GREEN}OK${ENDCOLOR} ]"; fi
+
+
+#Create an empty file, which will be used to set root directory for GRUB:
+echo "-==Create empty file for setting root directory for GRUB: $(date)==-" >> immudex-sdk_build.log;
+echo -n "Create empty file for GRUB...";
+touch ${HOME}/build/immudex-sdk/${arch}/staging/DEBIAN;
+if [ $? -eq 0 ]; then echo -e "[ ${GREEN}OK${ENDCOLOR} ]"; fi
+
+#Copying isolinux files:
+echo -n "Copiying isolinux files...";
+cp -v /usr/lib/ISOLINUX/isolinux.bin ${HOME}/build/immudex-sdk/${arch}/staging/isolinux >> immudex-sdk_build.log 2>&1;
+cp -v /usr/lib/syslinux/modules/bios/* ${HOME}/build/immudex-sdk/${arch}/staging/isolinux >> immudex-sdk_build.log 2>&1;
+if [ $? -eq 0 ]; then echo -e "[ ${GREEN}OK${ENDCOLOR} ]"; fi
+
+#Copying grub files:
+echo -n "Copying isolinux files...";
+cp -rv /usr/lib/grub/x86_64-efi/* ${HOME}/build/immudex-sdk/${arch}/staging/boot/grub/x86_64-efi >> immudex-sdk_build.log 2>&1;
+if [ $? -eq 0 ]; then echo -e "[ ${GREEN}OK${ENDCOLOR} ]"; fi
+
+#Creating grub-efi bootloader file:
+echo "-==Creating grub-efi bootloader file: $(date)==-" >> immudex-sdk_build.log;
+echo -n "Creating grub-efi bootloader file...";
+grub-mkstandalone --format=x86_64-efi --output=${HOME}/build/immudex-sdk/${arch}/staging/EFI/boot/bootx64.efi --locales="" --fonts="" "boot/grub/grub.cfg=${HOME}/build/immudex-sdk/${arch}/tmp/grub-standalone.cfg";
+if [ $? -eq 0 ]; then echo -e "[ ${GREEN}OK${ENDCOLOR} ]"; fi
+
+#Creating additional EFI partition:
+oldcwd=$(pwd);
+cd ${HOME}/build/immudex-sdk/${arch}/staging/boot/grub;
+echo -n "Creating addtitional EFI partition...";
+dd if=/dev/zero bs=1M of=efiboot.img count=20 >> ${oldcwd}/immudex-sdk_build.log 2>&1;
+sudo mkfs.vfat efiboot.img >> immudex-sdk_build.log 2>&1;
+echo "-==Creating MS-DOS directory: $(date)==-" >> ${oldcwd}/immudex-sdk_build.log;
+sudo mmd -i efiboot.img efi efi/boot >> ${oldcwd}/immudex-sdk_build.log 2>&1;
+sudo mcopy -vi efiboot.img ${HOME}/build/immudex-sdk/${arch}/staging/EFI/boot/bootx64.efi ::efi/boot >> ${oldcwd}/immudex-sdk_build.log 2>&1;
+if [ $? -eq 0 ]; then echo -e "[ ${GREEN}OK${ENDCOLOR} ]"; fi
+
+#Create iso image:
+cd $oldcwd;
+echo -n "Creating iso image...";
+xorriso as mkisofs -iso-level 3 -o "immudex-sdk_${version}_${arch2}.iso" -full-iso9660-filenames -volid "idxSdk{version}${arch2}" -isohybrid-mbr /usr/lib/ISOLINUX/isohdpfx.bin -eltorito-boot isolinux/isolinux.bin -no-emul-boot -boot-load-size 4 -boot-info-table --eltorito-catalog isolinux/isolinux.cat -eltorito-alt-boot -e /boot/grub/efiboot.img -no-emul-boot -isohybrid-gpt-basdat -append_partition 2 0xef ${HOME}/build/immudex-sdk/${arch}/staging/boot/grub/efiboot.img ${HOME}/build/immudex-sdk/${arch}/staging >> immudex-sdk_build.log 2>&1;
+if [ $? -eq 0 ]; then echo -e "[ ${GREEN}OK${ENDCOLOR} ]"; fi

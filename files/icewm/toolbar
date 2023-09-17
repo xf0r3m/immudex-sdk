@@ -1,0 +1,2 @@
+prog "XTerm" xterm xterm -bg black -fg white -geometry 80x24
+prog "Przeglądarka internetowa" ! x-www-browser

@@ -1,0 +1,5 @@
+xscreensaver -no-splash &
+icewmbg --scaled=1 -p -i /usr/share/images/desktop-base/d13_wallpaper.png &
+conky &
+
+exec icewm-session
