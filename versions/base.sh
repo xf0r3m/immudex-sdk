@@ -43,6 +43,9 @@ ln /root/.xinitrc /root/.xsession;
 cp -vv ~/immudex-sdk/files/XTerm /root/XTerm;
 
 cp -vv ~/immudex-sdk/tools/immudex-motd2 /usr/local/bin;
+cp -vv ~/immudex-sdk/tools/library.sh /usr/local/bin;
+chmod +x /usr/local/bin/*;
+
 
 cat >> /etc/bash.bashrc << EOL
 if [ ! -f /tmp/.motd ]; then
