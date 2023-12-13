@@ -1,8 +1,10 @@
 #!/bin/bash
 
 #/usr/bin/figlet immudex;
-source /usr/local/bin/library.sh;
-ascii_colors;
+#source /usr/local/bin/library.sh;
+#ascii_colors;
+echo -en "\e[1m"; echo "immudex" | /usr/bin/figlet | lolcat; echo -en "\e[0m";
+#echo "immudex" | /usr/bin/figlet | lolcat
 echo;
 echo "Today is: $(date)";
 echo;

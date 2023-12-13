@@ -23,8 +23,9 @@ else
 install_packages --no-install-recommends linux-image-686-pae live-boot systemd-sysv -y;
 fi
 
-install_packages --no-install-recommends network-manager net-tools iproute2 wireless-tools wget openssh-client alsa-utils firefox-esr icewm xserver-xorg-core xserver-xorg xinit xterm vim geany iputils-ping man man-db texinfo less ranger feh dosfstools isc-dhcp-client whiptail locales keyboard-configuration console-setup curl xfe lightdm rsync git conky cryptsetup debootstrap squashfs-tools xorriso isolinux syslinux-efi grub-pc-bin grub-efi-amd64-bin mtools figlet file gnome-themes-extra sudo
+install_packages --no-install-recommends network-manager net-tools iproute2 wireless-tools wget openssh-client alsa-utils firefox-esr icewm xserver-xorg-core xserver-xorg xinit xterm vim geany iputils-ping man man-db texinfo less ranger feh dosfstools isc-dhcp-client whiptail locales keyboard-configuration console-setup curl xfe lightdm rsync git conky cryptsetup debootstrap squashfs-tools xorriso isolinux syslinux-efi grub-pc-bin grub-efi-amd64-bin mtools figlet file gnome-themes-extra sudo lolcat
 
+ln -s /usr/games/lolcat /usr/bin;
 cp -vv ~/immudex-sdk/files/lightdm-gtk-greeter.conf /etc/lightdm
 
 if [ ! -d /usr/share/images/desktop-base ]; then
