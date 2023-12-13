@@ -1,0 +1,44 @@
+#!/bin/bash
+
+GREEN="\e[32m"
+ENDCOLOR="\e[0m"
+
+echo -en "\e[1m"; echo "immudex" | /usr/bin/figlet | lolcat; echo -en "\e[0m";
+echo -n "Put a mount point of disk device with required space (10GB): ";
+read mountPoint;
+
+cd $mountPoint;
+export HOME=$(pwd);
+
+echo -n "Getting immudex project repository...";
+if [ -d ~/immudex ]; then echo -e "[ ${GREEN}OK${ENDCOLOR} ]";
+else
+  git clone https://git.morketsmerke.org/git/immudex >> /dev/null 2>&1;
+  if [ $? -eq 0 ]; then echo -e "[ ${GREEN}OK${ENDCOLOR} ]"; fi
+fi
+
+PS3="ARCH: ";
+echo "Chose a destination machine architecture:";
+select a in amd64 i386; do
+  ARCH=$a;
+  break;
+done;
+
+PS3="DEBIAN: ";
+echo "Chose a Debian base version:";
+select d in oldstable stable testing; do
+  DEBIAN=$d;
+  break;
+done
+
+#CMD="~/immudex/immudex-build --${ARCH} --${DEBIAN}";
+#echo $CMD;
+
+cat >> ${HOME}/XTerm <<EOF
+xterm*faceName: Monospace
+xterm*faceSize: 10
+EOF
+
+xterm -fg white -bg black -geometry 80x24 -e bash /usr/local/bin/immudex-build-show-log $HOME &
+${HOME}/immudex/immudex-build --${ARCH} --${DEBIAN};
+

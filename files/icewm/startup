@@ -1,0 +1,3 @@
+#!/bin/sh
+
+sleep 1 && xterm -bg black -fg white -geometry 80x24 -e bash /usr/local/bin/immudex-build-menu &

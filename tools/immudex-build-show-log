@@ -1,0 +1,7 @@
+#!/bin/bash
+
+IDX_PATH=$1;
+while [ ! -f ${IDX_PATH}/immudex_build.log ]; do
+  sleep 1;
+done
+tail -f ${IDX_PATH}/immudex_build.log;
