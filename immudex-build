@@ -52,7 +52,7 @@ if [ ! -d ${HOME}/build/immudex-sdk/${arch} ]; then
 fi
 
 #Fetching testing vanilla Debian base system files:
-echo -n "Fetching testing vanilla Debian base system files...";
+echo -n "Fetching vanilla Debian stable base system files...";
 sudo /sbin/debootstrap --arch=$(echo $1 | sed 's/-//g') --variant=minbase stable ${HOME}/build/immudex-sdk/${arch}/chroot http://deb.debian.org/debian >> immudex-sdk_build.log 2>&1;
 if [ $? -eq 0 ]; then echo -e "[ ${GREEN}OK${ENDCOLOR} ]"; fi
 
