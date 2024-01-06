@@ -50,6 +50,7 @@ cp -vv ~/immudex-sdk/tools/library.sh /usr/local/bin;
 cp -vv ~/immudex-sdk/tools/immudex-build-menu /usr/local/bin;
 cp -vv ~/immudex-sdk/tools/immudex-build-show-log /usr/local/bin;
 cp -vv ~/immudex-sdk/tools/immudex-crypt /usr/local/bin;
+cp -vv ~/immudex-sdk/tools/immudex-create-media /usr/local/bin;
 chmod +x /usr/local/bin/*;
 
 
