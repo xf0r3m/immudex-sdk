@@ -66,8 +66,6 @@ EOL
 echo "alias immudex-chhome='export HOME=\$(pwd)'" >> /etc/bash.bashrc;
 
 echo "root:toor" | chpasswd;
-rootPasswdHash=$(grep 'root' /etc/shadow | cut -d ":" -f 2-3);
-sed -i "s,${rootPasswdHash},,g" /etc/shadow;
 
 echo "immudex-sdk" > /etc/hostname
 echo "127.0.1.1 immudex-sdk" >> /etc/hosts
