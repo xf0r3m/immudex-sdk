@@ -44,6 +44,7 @@ cp -vv ~/immudex-sdk/files/vimrc /root/.vimrc;
 cp -vv ~/immudex-sdk/files/xinitrc /root/.xinitrc;
 ln /root/.xinitrc /root/.xsession;
 cp -vv ~/immudex-sdk/files/XTerm /root/XTerm;
+cp -vv ~/immudex-sdk/files/lightdm.conf /etc/lightdm;
 
 cp -vv ~/immudex-sdk/tools/immudex-motd2 /usr/local/bin;
 cp -vv ~/immudex-sdk/tools/library.sh /usr/local/bin;
@@ -64,6 +65,9 @@ EOL
 echo "alias immudex-chhome='export HOME=\$(pwd)'" >> /etc/bash.bashrc;
 
 echo "root:toor" | chpasswd;
+rootPasswdHash=$(grep 'root' /etc/shadow | cut -d ":" -f 2-3);
+sed -i "s,${rootPasswdHash},,g" /etc/shadow;
+
 echo "immudex-sdk" > /etc/hostname
 echo "127.0.1.1 immudex-sdk" >> /etc/hosts
 tidy;
