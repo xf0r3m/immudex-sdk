@@ -45,6 +45,7 @@ cp -vv ~/immudex-sdk/files/xinitrc /root/.xinitrc;
 ln /root/.xinitrc /root/.xsession;
 cp -vv ~/immudex-sdk/files/XTerm /root/XTerm;
 cp -vv ~/immudex-sdk/files/lightdm.conf /etc/lightdm;
+cp -vv ~/immudex-sdk/files/lightdm-autologin /etc/pam.d;
 
 cp -vv ~/immudex-sdk/tools/immudex-motd2 /usr/local/bin;
 cp -vv ~/immudex-sdk/tools/library.sh /usr/local/bin;
