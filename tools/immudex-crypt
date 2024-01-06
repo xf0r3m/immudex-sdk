@@ -71,7 +71,10 @@ function open() {
     fi
     sudo cryptsetup open $1 immudex-crypt${index};
     sudo mkdir -p /media/${USER}/immudex-crypt${index};
-    dmDevice=$(ls -l /dev/mapper/immudex-crypt${index} | awk '{printf $10}' | cut -d "/" -f 2);
+    # Różnica w reprezentacji czasu modyfikacji miedzy Debian testing a stable i oldstable 
+    #dmDevice=$(ls -l /dev/mapper/immudex-crypt${index} | awk '{printf $10}' | cut -d "/" -f 2);
+    lastField=$(ls -l /dev/mapper/immudex-crypt${index} | grep -o ' ' | wc -l);
+    dmDevice=$(ls -al /dev/mapper/immudex-crypt0 | cut -d " " -f ${lastField}- | cut -d "/" -f2);
     if ! $(sudo file -s /dev/${dmDevice} | grep -q 'ext4'); then
       echo "Could not determine filesystem of unlocked device.";
       echo -n "Format this device to ext4? (y/n): "
