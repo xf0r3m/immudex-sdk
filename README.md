@@ -16,7 +16,7 @@ tej dystrybucji znajdują się pod adresem:
   ```
   $ git clone https://github.com/xf0r3m/immudex-sdk
   $ cd immudex-sdk
-  $ ./immudex-build --<amd64/i386>
+  $ ./immudex-build --<amd64/i386> <wersja_Debiana>-<wersja_zmian_immudex>
   ```
 
 ### Dodawanie zmian do obrazu płyty:
