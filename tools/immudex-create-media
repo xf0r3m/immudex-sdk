@@ -105,15 +105,15 @@ elif [ "$target" = "sdk" ]; then
 
   echo -n "Creating MS-DOS partitionig scheme on disk..."; 
   sudo parted $disk mklabel msdos > /dev/null 2>&1;
-  if [ $? -eq 0 ]; then echo -e "Creating MS-DOS partitionig scheme on disk...[${GREEN}OK${ENDCOLOR}]"; fi
+  if [ $? -eq 0 ]; then echo -e "[${GREEN}OK${ENDCOLOR}]"; fi
  
   echo -n "Creating partition on disk..."; 
   sudo parted $disk mkpart primary 1 100%Free > /dev/null 2>&1;
-  if [ $? -eq 0 ]; then echo -e "Creating partition on disk...[${GREEN}OK${ENDCOLOR}]"; fi
+  if [ $? -eq 0 ]; then echo -e "[${GREEN}OK${ENDCOLOR}]"; fi
 
   echo -n "Formating partition on disk..."; 
   sudo mkfs.ext4 ${disk}1 > /dev/null 2>&1;
-  if [ $? -eq 0 ]; then echo -e "Formating partition on disk...[${GREEN}OK${ENDCOLOR}]"; fi
+  if [ $? -eq 0 ]; then echo -e "[${GREEN}OK${ENDCOLOR}]"; fi
 
   echo -n "Create a mount point..."; 
   sudo mkdir -p /media/${USER}/$(basename $disk)1 > /dev/null 2>&1;
