@@ -33,7 +33,7 @@ else
   help;
   exit 1;
 fi
-if [ ! "$target" ] || [ "$target" != "nuke" ]; then
+if [ ! "$target" ] || ([ "$target" != "nuke" ] && [ "$target" != "sdk" ]); then
   if [ "$1" ] && file $1 | grep -q 'ISO 9660'; then 
     iso=$1;
   else
@@ -119,10 +119,13 @@ elif [ "$target" = "sdk" ]; then
   sudo mkdir -p /media/${USER}/$(basename $disk)1 > /dev/null 2>&1;
   if [ $? -eq 0 ]; then echo -e "[${GREEN}OK${ENDCOLOR}]"; fi
   
-  echo -n "Mounting parititon"; 
+  echo -n "Mounting parititon..."; 
   sudo mount ${disk}1 /media/${USER}/$(basename $disk)1 > /dev/null 2>&1;
-  if [ $? -eq 0 ]; then echo -e "[${GREEN}OK${ENDCOLOR}]"; fi
-
+  if [ $? -eq 0 ]; then 
+    echo -e "[${GREEN}OK${ENDCOLOR}]\n";
+    echo -e "Mount point: ${GREEN}/media/${USER}/$(basename $disk)1${ENDCOLOR}";
+  fi
+  
 
 else
   nuke $disk; 
