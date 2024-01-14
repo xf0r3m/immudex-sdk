@@ -146,5 +146,5 @@ if [ $? -eq 0 ]; then echo -e "[ ${GREEN}OK${ENDCOLOR} ]"; fi
 #Create iso image:
 cd $oldcwd;
 echo -n "Creating iso image...";
-xorriso as mkisofs -iso-level 3 -o "immudex-sdk_${version}_${arch2}.iso" -full-iso9660-filenames -volid "idxSdk{version}${arch2}" -isohybrid-mbr /usr/lib/ISOLINUX/isohdpfx.bin -eltorito-boot isolinux/isolinux.bin -no-emul-boot -boot-load-size 4 -boot-info-table --eltorito-catalog isolinux/isolinux.cat -eltorito-alt-boot -e /boot/grub/efiboot.img -no-emul-boot -isohybrid-gpt-basdat -append_partition 2 0xef ${HOME}/build/immudex-sdk/${arch}/staging/boot/grub/efiboot.img ${HOME}/build/immudex-sdk/${arch}/staging >> immudex-sdk_build.log 2>&1;
+xorriso as mkisofs -iso-level 3 -o "immudex-sdk_${version}_${arch2}.iso" -full-iso9660-filenames -volid "immudex-sdk_${version}_${arch2}" -isohybrid-mbr /usr/lib/ISOLINUX/isohdpfx.bin -eltorito-boot isolinux/isolinux.bin -no-emul-boot -boot-load-size 4 -boot-info-table --eltorito-catalog isolinux/isolinux.cat -eltorito-alt-boot -e /boot/grub/efiboot.img -no-emul-boot -isohybrid-gpt-basdat -append_partition 2 0xef ${HOME}/build/immudex-sdk/${arch}/staging/boot/grub/efiboot.img ${HOME}/build/immudex-sdk/${arch}/staging >> immudex-sdk_build.log 2>&1;
 if [ $? -eq 0 ]; then echo -e "[ ${GREEN}OK${ENDCOLOR} ]"; fi
