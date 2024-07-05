@@ -150,16 +150,16 @@ xorriso as mkisofs -iso-level 3 -o "immudex-sdk_${version}_${arch2}.iso" -full-i
 if [ $? -eq 0 ]; then echo -e "[ ${GREEN}OK${ENDCOLOR} ]"; fi
 
 #Counting SHA1 sum for iso image:
-echo "Counting SHA1 sum for iso image...";
+echo -n "Counting SHA1 sum for iso image...";
 sha1sum immudex-sdk_${version}_${arch2}.iso > immudex-sdk_${version}_${arch2}_sha1.txt;
 if [ $? -eq 0 ]; then echo -e "[ ${GREEN}OK${ENDCOLOR} ]"; fi
 
 #Counting CRC for iso image:
-echo "Counting CRC sum for iso image...";
+echo -n "Counting CRC sum for iso image...";
 cksum immudex-sdk_${version}_${arch2}.iso > immudex-sdk_${version}_${arch2}_crc.txt;
 if [ $? -eq 0 ]; then echo -e "[ ${GREEN}OK${ENDCOLOR} ]"; fi
 
 #Write version info to the file:
-echo "Write version info the file...";
+echo -n "Write version info the file...";
 echo $version > version.txt;
 if [ $? -eq 0 ]; then echo -e "[ ${GREEN}OK${ENDCOLOR} ]"; fi
