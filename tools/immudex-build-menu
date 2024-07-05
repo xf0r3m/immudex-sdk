@@ -4,8 +4,21 @@ GREEN="\e[32m"
 ENDCOLOR="\e[0m"
 
 echo -en "\e[1m"; echo "immudex" | /usr/bin/figlet | lolcat; echo -en "\e[0m";
-echo -n "Put a mount point of disk device with required space (10GB): ";
-read mountPoint;
+
+lsblk;
+
+echo -n "Put a disk device (name) with required space (10GB): ";
+read diskDevice;
+
+diskDeviceName=$(basename $diskDevice);
+mountPoint="/media/sdk/${diskDeviceName}";
+mkdir -p $mountPoint;
+
+if $(echo $diskDevice | grep -q '/dev'); then
+  mount $diskDevice $mountPoint;
+else
+  mount /dev/${diskDevice} $mountPoint;
+fi
 
 cd $mountPoint;
 export HOME=$(pwd);
@@ -39,6 +52,12 @@ xterm*faceName: Monospace
 xterm*faceSize: 10
 EOF
 
-xterm -fg white -bg black -geometry 80x24 -e bash /usr/local/bin/immudex-build-show-log $HOME &
+if [ "$DISPLAY" ]; then
+  xterm -fg white -bg black -geometry 80x24 -e bash /usr/local/bin/immudex-build-show-log $HOME &
+else
+  echo "# The Logs preview isn't available. Your X server isn't running in this console. #";
+  echo "# Logs are available in text file: ${HOME}/immudex_build.log #";
+fi
+
 ${HOME}/immudex/immudex-build --${ARCH} --${DEBIAN};
 
