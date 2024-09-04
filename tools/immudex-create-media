@@ -95,7 +95,7 @@ if [ "$target" = "i386-efi" ]; then
   if [ $? -eq 0 ]; then echo -e "[${GREEN}OK${ENDCOLOR}]"; fi
   
   echo -n "Umounting all mounted filesystems...";
-  sudo umount /mnt/* > /dev/null 2>&1;
+  sudo umount /mnt/usb /mnt/iso > /dev/null 2>&1;
   if [ $? -eq 0 ]; then echo -e "[${GREEN}OK${ENDCOLOR}]"; fi
 
 elif [ "$target" = "nuke" ]; then
