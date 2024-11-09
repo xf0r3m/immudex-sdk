@@ -42,6 +42,6 @@ else
 fi
 echo -e " \t$(uptime | grep -o "load.*$" | tr [a-z] [A-Z])";
 echo;
-echo -e "morketsmerke.org @ 2023 https://github.com/xf0r3m/immudex";
+echo -e "morketsmerke.org @ 2024 https://github.com/xf0r3m/immudex";
 echo;
 echo "====================================================================";

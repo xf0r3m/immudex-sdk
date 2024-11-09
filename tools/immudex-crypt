@@ -3,7 +3,7 @@
 function help() {
 
   echo "immudex-crypt - script used for listing, open and close crypt_LUKS ppartitions";
-  echo "@ 2023 morketsmerke.org";
+  echo "@ 2024 morketsmerke.org";
   echo "Options:";
   echo "  list - displaing list of opened and available crypt_LUKS devices";
   echo "  create - formatting device for crypt_LUKS";
