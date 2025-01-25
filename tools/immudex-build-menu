@@ -3,6 +3,17 @@
 GREEN="\e[32m"
 ENDCOLOR="\e[0m"
 
+function yesNo() {
+  PS3="YES/NO: ";
+  echo "$1";
+  select y0 in yes no; do
+    if [ "$y0" = "yes" ]; then
+      echo -n 1;
+    fi
+    break;
+  done
+}
+
 echo -en "\e[1m"; echo "immudex" | /usr/bin/figlet | lolcat; echo -en "\e[0m";
 
 lsblk;
@@ -42,7 +53,61 @@ echo "Chose a Debian base version:";
 select d in oldstable stable testing; do
   DEBIAN=$d;
   break;
-done
+done;
+
+eP=$(yesNo "Do you wanna add some extra packages?");
+if [ "$eP" ]; then
+  echo -n "Put space separated packages name list: ";
+  read extraPackagesList;
+  baseFilePath="~/immudex/versions/base.sh"; 
+  tidyCommandLocation=$(grep -n 'tidy' $baseFilePath | tail -1 | cut -d ":" -f 1);
+  extraPackagesListInstallationCommand="install_packages ${extraPackagesList};"
+  sed -i "${tidyCommandLocation}i ${extraPackagesListInstaltionCommand}" $baseFilePath;
+fi
+
+eA=$(yesNo "Do you wanna add some extra addons?");
+if [ "$eA" ]; then
+  echo -n "Put space sparated addons name: ";
+  read extraAddonsList;
+  baseFilePath="~/immudex/versions/base.sh"; 
+  for addonName in extraAddonsList; do
+    tidyCommandLocation=$(grep -n 'tidy' $baseFilePath | tail -1 | cut -d ":" -f 1);
+    extraAddonInstallationCommand="bash ~/immudex/addons/${addonName}";
+    sed -i "${tidyCommandLocation}i ${extraAddonInstallationCommand}" $baseFilePath;
+  done
+fi
+
+eS=$(yesNo "Do you wanna add some extra commands to base file?");
+if [ "$eS" ]; then
+  echo -n "Put script filepath: ";
+  read scriptFilePath;
+  baseFilePath="~/immudex/versions/base.sh"; 
+  tidyCommandLocation=$(grep -n 'tidy' $baseFilePath | tail -1 | cut -d ":" -f 1);
+  if $(head -1 $scriptFilePath | grep '#!/bin/bash'); then
+    sed -n '2,$p' $scriptFilePath > /tmp/scriptSnippet.txt;
+    sed -i "${tidyCommandLocation}r /tmp/scriptSnippet.txt" $baseFilePath;
+  else
+    sed -i "${tidyCommandLocation}r /tmp/scriptSnippet.txt" $baseFilePath;
+  fi
+fi
+
+cN=$(yesNo "Do you wanna name this immudex image?";);
+if [ "$cN" ]; then
+  echo -n "Type your image name: ";
+  read canonicalName;
+fi
+
+vER=$(yesNo "Do you wanna add version number?";);
+if [ "$vER" ]; then
+  echo -n "Type version of this image: ";
+  if ! [ "$canonicalName" ]; then
+    read canonicalName;
+  else
+    read version;
+  fi
+fi
+
+
 
 #CMD="~/immudex/immudex-build --${ARCH} --${DEBIAN}";
 #echo $CMD;
@@ -59,5 +124,13 @@ else
   echo "# Logs are available in text file: ${HOME}/immudex_build.log #";
 fi
 
-${HOME}/immudex/immudex-build --${ARCH} --${DEBIAN};
+if [ "$canonicalName" ] && [ "$version" ]; then
+  ${HOME}/immudex/immudex-build --${ARCH} --${DEBIAN} $canonicalName $version;
+elif [ "$canonicalName" ]; then
+  ${HOME}/immudex/immudex-build --${ARCH} --${DEBIAN} $canonicalName;
+else
+  ${HOME}/immudex/immudex-build --${ARCH} --${DEBIAN};
+fi
+
+
 
