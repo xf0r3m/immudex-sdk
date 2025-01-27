@@ -5,7 +5,6 @@ ENDCOLOR="\e[0m"
 
 function yesNo() {
   PS3="YES/NO: ";
-  echo "$1";
   select y0 in yes no; do
     if [ "$y0" = "yes" ]; then
       echo -n 1;
@@ -55,49 +54,55 @@ select d in oldstable stable testing; do
   break;
 done;
 
-eP=$(yesNo "Do you wanna add some extra packages?");
+echo 'Do you wanna add some extra packages?';
+eP=$(yesNo);
 if [ "$eP" ]; then
   echo -n "Put space separated packages name list: ";
   read extraPackagesList;
-  baseFilePath="~/immudex/versions/base.sh"; 
+  baseFilePath="${HOME}/immudex/versions/base.sh"; 
   tidyCommandLocation=$(grep -n 'tidy' $baseFilePath | tail -1 | cut -d ":" -f 1);
-  extraPackagesListInstallationCommand="install_packages ${extraPackagesList};"
-  sed -i "${tidyCommandLocation}i ${extraPackagesListInstaltionCommand}" $baseFilePath;
+  installationCommand="install_packages ${extraPackagesList};"
+  sed -i "${tidyCommandLocation}i\ ${installationCommand}" $baseFilePath;
 fi
 
-eA=$(yesNo "Do you wanna add some extra addons?");
+echo "Do you wanna add some extra addons?";
+eA=$(yesNo);
 if [ "$eA" ]; then
   echo -n "Put space sparated addons name: ";
   read extraAddonsList;
-  baseFilePath="~/immudex/versions/base.sh"; 
-  for addonName in extraAddonsList; do
+  baseFilePath="${HOME}/immudex/versions/base.sh"; 
+  for addonName in $extraAddonsList; do
     tidyCommandLocation=$(grep -n 'tidy' $baseFilePath | tail -1 | cut -d ":" -f 1);
     extraAddonInstallationCommand="bash ~/immudex/addons/${addonName}";
-    sed -i "${tidyCommandLocation}i ${extraAddonInstallationCommand}" $baseFilePath;
+    sed -i "${tidyCommandLocation}i\ ${extraAddonInstallationCommand}" $baseFilePath;
   done
 fi
 
-eS=$(yesNo "Do you wanna add some extra commands to base file?");
+echo "Do you wanna add some extra commands to base file?";
+eS=$(yesNo);
 if [ "$eS" ]; then
   echo -n "Put script filepath: ";
   read scriptFilePath;
-  baseFilePath="~/immudex/versions/base.sh"; 
+  baseFilePath="${HOME}/immudex/versions/base.sh"; 
   tidyCommandLocation=$(grep -n 'tidy' $baseFilePath | tail -1 | cut -d ":" -f 1);
-  if $(head -1 $scriptFilePath | grep '#!/bin/bash'); then
+  tidyCommandLocation=$(expr $tidyCommandLocation - 1);
+  if $(head -1 $scriptFilePath | grep -q '#!/bin/bash'); then
     sed -n '2,$p' $scriptFilePath > /tmp/scriptSnippet.txt;
     sed -i "${tidyCommandLocation}r /tmp/scriptSnippet.txt" $baseFilePath;
   else
-    sed -i "${tidyCommandLocation}r /tmp/scriptSnippet.txt" $baseFilePath;
+    sed -i "${tidyCommandLocation}r ${scriptFilePath}" $baseFilePath;
   fi
 fi
 
-cN=$(yesNo "Do you wanna name this immudex image?";);
+echo "Do you wanna name this immudex image?";
+cN=$(yesNo);
 if [ "$cN" ]; then
   echo -n "Type your image name: ";
   read canonicalName;
 fi
 
-vER=$(yesNo "Do you wanna add version number?";);
+echo "Do you wanna add version number?";
+vER=$(yesNo);
 if [ "$vER" ]; then
   echo -n "Type version of this image: ";
   if ! [ "$canonicalName" ]; then
