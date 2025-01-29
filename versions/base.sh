@@ -72,6 +72,6 @@ echo "127.0.1.1 immudex-sdk" >> /etc/hosts
 
 sed -i '/PermitRootLogin/s/#//g' /etc/ssh/sshd_config
 sed -i '/PermitRootLogin/s/prohibit-password/yes/g' /etc/ssh/sshd_config
-sudo systemctl disable ssh.service;
+systemctl disable ssh.service;
 
 tidy;
