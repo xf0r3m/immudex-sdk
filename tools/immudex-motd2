@@ -28,6 +28,7 @@ if $(df -h 2> /dev/null | grep -q '/dev/mapper'); then
 else
   echo -e "  \tCRYPT_PART: N/A";
 fi
+echo -e "  \tIP: $(ip addr show $(sed -n '2p' /proc/net/route | awk '{printf $1}') | grep 'inet\ ' | awk '{printf $2"\n"}')";
 echo -e "  \tPROCESSES: $(ps -aux | wc -l | awk '{printf $1}')";
 if $(uptime | grep -q 'day'); then
   utime=$(uptime | awk '{printf $3" "$4" "$5}' | sed -e 's/\,$//' -e 's,:,h ,');
@@ -42,6 +43,6 @@ else
 fi
 echo -e " \t$(uptime | grep -o "load.*$" | tr [a-z] [A-Z])";
 echo;
-echo -e "morketsmerke.org @ 2024 https://github.com/xf0r3m/immudex";
+echo -e "morketsmerke.org @ 2025 https://github.com/xf0r3m/immudex";
 echo;
 echo "====================================================================";
