@@ -1,0 +1,195 @@
+#!/bin/bash
+
+RED="\e[31m";
+GREEN="\e[32m";
+ENDCOLOR="\e[0m";
+
+if [ $UID -ne 0 ]; then
+  echo "Permission denied!";
+  exit 1;
+fi
+
+while [ true ]; do
+  echo -e "${RED}This script will install immudex on first disk on your machine.${ENDCOLOR}";
+  echo -e "${RED}It could be destructive for data placed on this disk${ENDCOLR}";
+  echo -en "${RED}Are you sure that you want contiune? (y/n): ${ENDCOLOR}";
+  read ans;
+  if [ "$ans" = "y" ]; then break;
+  elif [ "$ans" = "n" ]; then exit 1;
+  fi
+done
+
+set -e
+
+function selectDisk() {
+  disks=$(lsblk | grep 'disk' | awk '{printf $1" "}');
+  if [ $(echo $disks | wc -w) -gt 1 ]; then
+    select drive in $disks; do
+      echo $drive;
+      break;
+    done 
+  else
+	  echo $disks | awk '{printf $1}';
+  fi
+}
+
+if $(sudo efibootmgr > /dev/null 2>&1); then
+#uefi installation
+	#partitioning
+  echo -n "Installation immudex in EFI mode ... ";
+  disk=$(selectDisk);
+  originDisk=$disk;   
+  if [ ! "$disk" ]; then exit 1; fi
+
+  dd if=/dev/zero bs=1M of=/dev/$disk count=1 2> /dev/null
+
+	parted /dev/$disk mklabel msdos > /dev/null 2>&1;
+	parted /dev/$disk mkpart primary 1 101M > /dev/null 2>&1;
+	parted /dev/$disk set 1 boot on > /dev/null 2>&1;
+	parted /dev/$disk mkpart primary 101M 3G > /dev/null 2>&1;
+
+  if $(echo $disk | egrep -qo "mmc|nvme"); then disk="${disk}p"; fi
+	
+	#formatting
+	mkfs.vfat -F32 /dev/${disk}1 > /dev/null 2>&1;
+	mkfs.ext4 /dev/${disk}2 > /dev/null 2>&1;
+
+  #Setting label for partition
+	e2label /dev/${disk}2 "immudex" > /dev/null 2>&1;
+
+	#mount root partition
+	mount /dev/${disk}2 /media > /dev/null 2>&1;
+	
+	#creating directories for efi partition
+	mkdir -p /media/boot/efi > /dev/null 2>&1;
+
+	#mount efi partition
+	mount /dev/${disk}1 /media/boot/efi > /dev/null 2>&1;
+
+	#mount iso image in /mnt directory
+	#sudo mount /dev/sr0 /mnt > /dev/null 2>&1;
+
+	#copying whole iso image to the second partition
+  if [ "$1" ] && $(echo "$1" | grep -q '^http'); then
+    URL="$1";
+    
+    if [ ! -d /media/boot/grub ]; then mkdir -p /media/boot/grub/ > /dev/null 2>&1; fi
+    if [ ! -d /media/isolinux ] ; then mkdir -p /media/isolinux > /dev/null 2>&1; fi
+    if [ ! -d /media/live ]; then mkdir -p /media/live > /dev/null 2>&1; fi
+    
+    wget ${URL}/live/vmlinuz -O /media/live/vmlinuz 2>/dev/null;
+    if [ $? -eq 0 ]; then echo -e "Downloading immudex kernel...[ ${GREEN}OK${ENDCOLOR} ]"; fi
+    wget ${URL}/live/initrd -O /media/live/initrd 2>/dev/null;
+    if [ $? -eq 0 ]; then echo -e "Downloading immudex initrd...[ ${GREEN}OK${ENDCOLOR} ]"; fi
+    wget ${URL}/live/filesystem.squashfs -O /media/live/filesystem.squashfs 2>/dev/null;
+    if [ $? -eq 0 ]; then echo -e "Downloading immudex filesystem.squashfs...[ ${GREEN}OK${ENDCOLOR} ]"; fi
+    wget ${URL}/live/changelog -O /media/live/changelog 2>/dev/null;
+    if [ $? -eq 0 ]; then echo -e "Downloading immudex changelog file...[ ${GREEN}OK${ENDCOLOR} ]"; fi
+
+    wget https://raw.githubusercontent.com/xf0r3m/immudex/refs/heads/main/grub/amd64/grub.cfg -O /media/boot/grub/grub.cfg 2>/dev/null;
+    if [ $? -eq 0 ]; then echo -e "Downloading immudex GRUB config...[ ${GREEN}OK${ENDCOLOR} ]"; fi
+    wget https://github.com/xf0r3m/immudex/raw/refs/heads/main/grub/amd64/font.pf2 -O /media/boot/grub/font.pf2 2>/dev/null;
+    if [ $? -eq 0 ]; then echo -e "Downloading immudex GRUB font file...[ ${GREEN}OK${ENDCOLOR} ]"; fi
+    
+    if [ ! -d /media/boot/grub/x86_64-efi ]; then mkdir -p /media/boot/grub/x86_64-efi;
+    cp -rv /usr/lib/grub/x86_64-efi/* /media/boot/grub/x86_64-efi;
+    if [ $? -eq 0 ]; then echo -e "Copying GRUB additional files...[ ${GREEN}OK${ENDCOLOR} ]"; fi
+    
+  else
+	  cp -rvv /run/live/medium/* /media > /dev/null 2>&1;
+
+    #removing unnecessary directories from second partition
+	  rm -rf /media/isolinux > /dev/null 2>&1;
+	  rm -rf /media/EFI > /dev/null 2>&1;
+  fi
+  
+  sed -i '/set\ timeout=/ s/30/5/' /media/boot/grub/grub.cfg;  
+  sed -i 's/bootfrom=removable //g' /media/boot/grub/grub.cfg; 
+
+	
+	#GRUB Installation
+  if [ -f /usr/lib/live/mount/medium/EFI/BOOT/BOOTIA32.EFI ]; then
+    target="i386-efi";
+  else
+    target="x86_64-efi";
+  fi
+	grub-install --target=${target} --root-directory=/media --boot-directory=/media/boot --efi-directory=/media/boot/efi --bootloader-id=debian --removable > /dev/null 2>&1;
+
+	#Adding entry to EFI Firmware
+	efibootmgr -c -d /dev/${originDisk} -p 1 -L "Debian" -l '\EFI\BOOT\grubx64.efi' > /dev/null 2>&1;
+
+  #Umount all mounted filesystems
+  umount -R /media > /dev/null 2>&1;
+
+  if [ $? -eq 0 ]; then echo -e "[ ${GREEN}OK${ENDCOLOR} ]"; fi
+
+else
+#mbr installation
+  echo -n "Installation immudex in BIOS mode ... ";
+
+	#partitioning
+	disk=$(selectDisk);
+  if [ ! "$disk" ]; then exit 1; fi
+
+  dd if=/dev/zero bs=1M of=/dev/$disk count=1 2> /dev/null
+
+  parted /dev/$disk mklabel msdos > /dev/null 2>&1;
+	parted /dev/$disk mkpart primary 1 3G > /dev/null 2>&1;
+	parted /dev/$disk set 1 boot on > /dev/null 2>&1;
+	
+  if $(echo $disk | egrep -qo "mmc|nvme"); then disk="${disk}p"; fi
+
+	#formatting
+	mkfs.ext4 /dev/${disk}1 > /dev/null 2>&1;
+
+	#Setting label for partition is necessary for extlinux bootloader
+	e2label /dev/${disk}1 "immudex" > /dev/null 2>&1;
+
+	#mount partition in /media directory
+	mount /dev/${disk}1 /media > /dev/null 2>&1;
+
+	#Creating directory for extlinux
+	mkdir /media/extlinux > /dev/null 2>&1;
+	
+	#Instalation extlinux files in abovementioned directory
+	extlinux --install /media/extlinux > /dev/null 2>&1;
+
+	#mount iso image in /mnt directory
+	#sudo mount /dev/sr0 /mnt > /dev/null 2>&1;
+
+	#copying live directory from iso image to partition
+  if [ "$1" ] && $(echo $1 | grep -q '^http'); then
+    URL="$1";
+
+    if [ ! -d /media/live ]; then mkdir -p /media/live; fi
+    
+    wget ${URL}/live/vmlinuz -O /media/live/vmlinuz 2>/dev/null;
+    if [ $? -eq 0 ]; then echo -e "Downloading immudex kernel...[ ${GREEN}OK${ENDCOLOR} ]"; fi
+    wget ${URL}/live/initrd -O /media/live/initrd 2>/dev/null;
+    if [ $? -eq 0 ]; then echo -e "Downloading immudex initrd...[ ${GREEN}OK${ENDCOLOR} ]"; fi
+    wget ${URL}/live/filesystem.squashfs -O /media/live/filesystem.squashfs 2>/dev/null;
+    if [ $? -eq 0 ]; then echo -e "Downloading immudex filesystem.squashfs...[ ${GREEN}OK${ENDCOLOR} ]"; fi
+    wget ${URL}/live/changelog -O /media/live/changelog 2>/dev/null;
+    if [ $? -eq 0 ]; then echo -e "Downloading immudex changelog file...[ ${GREEN}OK${ENDCOLOR} ]"; fi
+
+  else
+	  cp -rvv /run/live/medium/live /media > /dev/null; 2>&1;
+  fi
+
+	#installation extlinux MBR on first sector of hard drive (whole device)
+	dd if=/usr/lib/EXTLINUX/mbr.bin of=/dev/${disk} > /dev/null 2>&1;
+
+	#creating extlinux configuration file
+	cat > extlinux.conf <<EOF
+default immudex
+label immudex
+kernel /live/vmlinuz
+append quiet initrd=/live/initrd boot=live overlay-size=25% apparmor=1 security=apparmor
+EOF
+	cp extlinux.conf /media/extlinux > /dev/null 2>&1;
+  rm extlinux.conf;
+
+  #Unmounting filesystems
+  umount /media > /dev/null 2>&1;
+  if [ $? -eq 0 ]; then echo -e "[ ${GREEN}OK${ENDCOLOR} ]"; fi
+fi
