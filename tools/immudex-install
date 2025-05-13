@@ -125,7 +125,7 @@ if $(sudo efibootmgr > /dev/null 2>&1); then
 
 else
 #mbr installation
-  echo -n "Installation immudex in BIOS mode ... ";
+  echo "Installation immudex in BIOS mode ... ";
 
 	#partitioning
 	disk=$(selectDisk);
