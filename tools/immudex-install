@@ -92,7 +92,7 @@ if $(sudo efibootmgr > /dev/null 2>&1); then
     if [ $? -eq 0 ]; then echo -e "Downloading immudex GRUB font file...[ ${GREEN}OK${ENDCOLOR} ]"; fi
     
     if [ ! -d /media/boot/grub/x86_64-efi ]; then mkdir -p /media/boot/grub/x86_64-efi; fi
-    cp -rv /usr/lib/grub/x86_64-efi/* /media/boot/grub/x86_64-efi;
+    cp -r /usr/lib/grub/x86_64-efi/* /media/boot/grub/x86_64-efi;
     if [ $? -eq 0 ]; then echo -e "Copying GRUB additional files...[ ${GREEN}OK${ENDCOLOR} ]"; fi
     
   else
@@ -121,7 +121,7 @@ if $(sudo efibootmgr > /dev/null 2>&1); then
   #Umount all mounted filesystems
   umount -R /media > /dev/null 2>&1;
 
-  if [ $? -eq 0 ]; then echo -e "[ ${GREEN}OK${ENDCOLOR} ]"; fi
+  if [ $? -eq 0 ]; then echo -e "Installation immudex in EFI mode ... [ ${GREEN}OK${ENDCOLOR} ]"; fi
 
 else
 #mbr installation
@@ -191,5 +191,5 @@ EOF
 
   #Unmounting filesystems
   umount /media > /dev/null 2>&1;
-  if [ $? -eq 0 ]; then echo -e "[ ${GREEN}OK${ENDCOLOR} ]"; fi
+  if [ $? -eq 0 ]; then echo -e "Installation immudex in BIOS mode ... [ ${GREEN}OK${ENDCOLOR} ]"; fi
 fi
