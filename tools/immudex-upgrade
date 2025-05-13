@@ -102,7 +102,8 @@ if [ "$1" ]; then
       else
         if [ "$2" ] && $(echo "$2" | grep -q '^http'); then
           wget ${URL}/live/grub.cfg -O /mnt/boot/grub/grub.cfg 2>/dev/null;
-          if [ $? -eq 0 ]; then echo -e "  Downloading immudex GRUB config...[ ${GREEN}OK${ENDCOLOR} ]"; fi
+          if [ $? -eq 0 ]; then echo -e "    Downloading immudex GRUB config...[ ${GREEN}OK${ENDCOLOR} ]"; fi
+          echo -e "  Copying grub config to the disk...[ ${GREEN}OK${ENDCOLOR} ]";
         else
 	        cp -vv /run/live/medium/boot/grub/grub.cfg /mnt/boot/grub/grub.cfg;
 	        if [ $? -eq 0 ]; then 
