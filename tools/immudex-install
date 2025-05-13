@@ -36,7 +36,7 @@ function selectDisk() {
 if $(sudo efibootmgr > /dev/null 2>&1); then
 #uefi installation
 	#partitioning
-  echo -n "Installation immudex in EFI mode ... ";
+  echo "Installation immudex in EFI mode ... ";
   disk=$(selectDisk);
   originDisk=$disk;   
   if [ ! "$disk" ]; then exit 1; fi
