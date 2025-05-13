@@ -91,7 +91,7 @@ if $(sudo efibootmgr > /dev/null 2>&1); then
     wget https://github.com/xf0r3m/immudex/raw/refs/heads/main/grub/amd64/font.pf2 -O /media/boot/grub/font.pf2 2>/dev/null;
     if [ $? -eq 0 ]; then echo -e "Downloading immudex GRUB font file...[ ${GREEN}OK${ENDCOLOR} ]"; fi
     
-    if [ ! -d /media/boot/grub/x86_64-efi ]; then mkdir -p /media/boot/grub/x86_64-efi;
+    if [ ! -d /media/boot/grub/x86_64-efi ]; then mkdir -p /media/boot/grub/x86_64-efi; fi
     cp -rv /usr/lib/grub/x86_64-efi/* /media/boot/grub/x86_64-efi;
     if [ $? -eq 0 ]; then echo -e "Copying GRUB additional files...[ ${GREEN}OK${ENDCOLOR} ]"; fi
     
