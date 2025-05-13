@@ -115,7 +115,7 @@ if [ "$1" ]; then
 	      sed -i 's/bootfrom=removable //g' /mnt/boot/grub/grub.cfg;
       fi
     fi
-    echo "Upgrading immudex...[ ${GREEN}OK${ENDCOLOR} ]";
+    echo -e "Upgrading immudex...[ ${GREEN}OK${ENDCOLOR} ]";
   elif [ "$1" ] && [ "$1" = "--myversion" ]; then
     #if [ -d /tmp/immudex ]; then 
     #  (cd /tmp/immudex && git pull > /dev/null 2>&1)
