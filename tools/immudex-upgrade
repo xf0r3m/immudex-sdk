@@ -12,17 +12,17 @@ root="/run/live/medium";
 
 function help() {
   echo "immudex-upgrade - script for searching upgrades and upgrade immudex";
-  echo "@ 2024 morketsmerke.org";
+  echo "@ 2025 morketsmerke.org";
   echo "Superuser (root) privileges are required.";
   echo "Options:";
-  echo " --check - check there are upgrades for immudex";
+  #echo " --check - check there are upgrades for immudex";
   echo " --upgrade - upgrade immudex from given source";
   #echo " --myversion - prints images current commit message";
-  echo " --myversion - prints image details";
-  echo " --compilation-date - prints date of image creation";
-  echo " --packages-upgradable [--security] - updates apt (packages) list and";
-  echo "   prints available to upgrade packages, with --security modificator";
-  echo "   prints only pacakages from security repository branch";
+  #echo " --myversion - prints image details";
+  #echo " --compilation-date - prints date of image creation";
+  #echo " --packages-upgradable [--security] - updates apt (packages) list and";
+  #echo "   prints available to upgrade packages, with --security modificator";
+  #echo "   prints only pacakages from security repository branch";
 }
 
 if [ $UID -ne 0 ]; then
@@ -41,14 +41,15 @@ if [ "$1" ]; then
       check_distro_commit --print;
     fi
   elif [ "$1" ] && [ "$1" = "--upgrade" ]; then
+    echo "Upgrading immudex...";
     part=$(blkid | grep 'LABEL="immudex"' | awk '{printf $1}' | cut -d ":" -f 1);
     if mount | grep -q "$part"; then
-      echo -n "Mounting iso image...";
+      echo -n "  Mounting iso image...";
       mount $2 /mnt > /dev/null 2>&1;
       if [ $? -eq 0 ]; then echo -e "[ ${GREEN}OK${ENDCOLOR} ]"; fi
       mountPointList=$(mount | grep "$part" | awk '{printf $3" "}');
       for mountPoint in $mountPointList; do
-        echo -n "Unlocking $mountPoint ..."; 
+        echo -n "  Unlocking $mountPoint ..."; 
         mount $part $mountPoint -o remount,rw > /dev/null 2>&1;
         if [ $? -eq 0 ]; then
           echo -e "[ ${GREEN}OK${ENDCOLOR} ]";
@@ -56,61 +57,67 @@ if [ "$1" ]; then
           echo -e "[ ${RED}FAIL${ENDCOLOR} ]";
         fi
       done
-      if [ "$2" ] && $(echo "$2" | grep -q '^http'); then
-        URL="$2";
-        wget ${URL}/vmlinuz -O ${mountPoint}/live/vmlinuz 2>/dev/null;
-        if [ $? -eq 0 ]; then echo -e "Copying immudex kernel to the disk...[ ${GREEN}OK${ENDCOLOR} ]";
-        wget ${URL}/initrd -O ${mountPoint}/live/initrd 2>/dev/null;
-        if [ $? -eq 0 ]; then echo -e "Copying immudex initrd to the disk...[ ${GREEN}OK${ENDCOLOR} ]";
-        wget ${URL}/filesystem.squashfs -O ${mountPoint}/live/filesystem.squashfs 2>/dev/null;
-        if [ $? -eq 0 ]; then echo -e "Copying immudex filesystem.squashfs to the disk...[ ${GREEN}OK${ENDCOLOR} ]";
-        wget ${URL}/version -O ${mountPoint}/live/version 2>/dev/null;
-        if [ $? -eq 0 ]; then echo -e "Copying immudex version file to the disk...[ ${GREEN}OK${ENDCOLOR} ]";
-        wget ${URL}/changelog -O ${mountPoint}/live/changelog 2>/dev/null;
-        if [ $? -eq 0 ]; then echo -e "Copying immudex changelog file to the disk...[ ${GREEN}OK${ENDCOLOR} ]";
+      echo "  Copying immudex files to the disk...";
+      cp -vv /mnt/live/* ${mountPoint}/live;
+      if [ $? -eq 0 ]; then
+        echo -e "  Copying immudex files to the disk...[ ${GREEN}OK${ENDCOLOR} ]";
       else
-      echo "Copying immudex files to the disk...";
-        cp -vv /mnt/live/* ${mountPoint}/live;
-        if [ $? -eq 0 ]; then
-          echo -e "Copying immudex files to the disk...[ ${GREEN}OK${ENDCOLOR} ]";
-        else
-          echo -e "Copying immudex files to the disk...[ ${RED}FAIL${ENDCOLOR} ]";
-        fi
+        echo -e "  Copying immudex files to the disk...[ ${RED}FAIL${ENDCOLOR} ]";
       fi
     else
-      echo -n "Mounting immudex partition...";
+      echo -n "  Mounting immudex partition...";
       mount $part /mnt >> /dev/null 2>&1;
       if [ $? -eq 0 ]; then echo -e "[ ${GREEN}OK${ENDCOLOR} ]"; fi
-      echo "Copying immudex files to the disk...";
-      cp -vv /run/live/medium/live/* /mnt/live;
-      if [ $? -eq 0 ]; then
-        echo -e "Copying immudex files to the disk...[ ${GREEN}OK${ENDCOLOR} ]";
+      if [ "$2" ] && $(echo "$2" | grep -q '^http'); then
+        URL="$2";
+        wget ${URL}/vmlinuz -O /mnt/live/vmlinuz 2>/dev/null;
+        if [ $? -eq 0 ]; then echo -e "  Copying immudex kernel to the disk...[ ${GREEN}OK${ENDCOLOR} ]";
+        wget ${URL}/initrd -O /mnt/live/initrd 2>/dev/null;
+        if [ $? -eq 0 ]; then echo -e "  Copying immudex initrd to the disk...[ ${GREEN}OK${ENDCOLOR} ]";
+        wget ${URL}/filesystem.squashfs -O /mnt/live/filesystem.squashfs 2>/dev/null;
+        if [ $? -eq 0 ]; then echo -e "  Copying immudex filesystem.squashfs to the disk...[ ${GREEN}OK${ENDCOLOR} ]";
+        wget ${URL}/version -O /mnt/live/version 2>/dev/null;
+        if [ $? -eq 0 ]; then echo -e "  Copying immudex version file to the disk...[ ${GREEN}OK${ENDCOLOR} ]";
+        wget ${URL}/changelog -O /mnt/live/changelog 2>/dev/null;
+        if [ $? -eq 0 ]; then echo -e "  Copying immudex changelog file to the disk...[ ${GREEN}OK${ENDCOLOR} ]";
       else
-        echo -e "Copying immudex files to the disk...[ ${RED}FAIL${ENDCOLOR} ]";
+        echo "  Copying immudex files to the disk...";
+        cp -vv /run/live/medium/live/* /mnt/live;
+        if [ $? -eq 0 ]; then
+          echo -e "  Copying immudex files to the disk...[ ${GREEN}OK${ENDCOLOR} ]";
+        else
+          echo -e "  Copying immudex files to the disk...[ ${RED}FAIL${ENDCOLOR} ]";
+        fi
       fi
     fi
     if $(sudo efibootmgr > /dev/null 2>&1); then
-	    echo "Copying grub config to the disk...";
+	    echo "  Copying grub config to the disk...";
       if [ "$mountPoint" ]; then
         cp -vv /mnt/boot/grub/grub.cfg ${mountPoint}/boot/grub/grub.cfg;
         if [ $? -eq 0 ]; then 
-          echo -e "Copying grub config to the disk...[ ${GREEN}OK${ENDCOLOR} ]";
+          echo -e "  Copying grub config to the disk...[ ${GREEN}OK${ENDCOLOR} ]";
           sed -i '/set\ timeout=/ s/30/5/' ${mountPoint}/boot/grub/grub.cfg;
 	        sed -i 's/bootfrom=removable //g' ${mountPoint}/boot/grub/grub.cfg;
         else
-          echo -e "Copying grub config to the disk...[ ${RED}FAIL${ENDCOLOR} ]";
+          echo -e "  Copying grub config to the disk...[ ${RED}FAIL${ENDCOLOR} ]";
         fi
       else
-	      cp -vv /run/live/medium/boot/grub/grub.cfg /mnt/boot/grub/grub.cfg;
-	      if [ $? -eq 0 ]; then 
-          echo -e "Copying grub config to the disk...[ ${GREEN}OK${ENDCOLOR} ]";
-	        sed -i '/set\ timeout=/ s/30/5/' /mnt/boot/grub/grub.cfg;
-	        sed -i 's/bootfrom=removable //g' /mnt/boot/grub/grub.cfg;
+        if [ "$2" ] && $(echo "$2" | grep -q '^http'); then
+          wget ${URL}/live/grub.cfg -O /mnt/boot/grub/grub.cfg 2>/dev/null;
+          if [ $? -eq 0 ]; then echo -e "  Downloading immudex GRUB config...[ ${GREEN}OK${ENDCOLOR} ]"; fi
         else
-          echo -e "Copying grub config to the disk...[ ${RED}FAIL${ENDCOLOR} ]";
+	        cp -vv /run/live/medium/boot/grub/grub.cfg /mnt/boot/grub/grub.cfg;
+	        if [ $? -eq 0 ]; then 
+            echo -e "  Copying grub config to the disk...[ ${GREEN}OK${ENDCOLOR} ]";
+	        else
+            echo -e "  Copying grub config to the disk...[ ${RED}FAIL${ENDCOLOR} ]";
+          fi
         fi
+        sed -i '/set\ timeout=/ s/30/5/' /mnt/boot/grub/grub.cfg;
+	      sed -i 's/bootfrom=removable //g' /mnt/boot/grub/grub.cfg;
       fi
     fi
+    echo "Upgrading immudex...[ ${GREEN}OK${ENDCOLOR} ]";
   elif [ "$1" ] && [ "$1" = "--myversion" ]; then
     #if [ -d /tmp/immudex ]; then 
     #  (cd /tmp/immudex && git pull > /dev/null 2>&1)
