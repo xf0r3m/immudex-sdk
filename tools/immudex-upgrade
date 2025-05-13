@@ -76,8 +76,6 @@ if [ "$1" ]; then
         if [ $? -eq 0 ]; then echo -e "  Copying immudex initrd to the disk...[ ${GREEN}OK${ENDCOLOR} ]"; fi
         wget ${URL}/live/filesystem.squashfs -O /mnt/live/filesystem.squashfs 2>/dev/null;
         if [ $? -eq 0 ]; then echo -e "  Copying immudex filesystem.squashfs to the disk...[ ${GREEN}OK${ENDCOLOR} ]"; fi
-        wget ${URL}/live/version -O /mnt/live/version 2>/dev/null;
-        if [ $? -eq 0 ]; then echo -e "  Copying immudex version file to the disk...[ ${GREEN}OK${ENDCOLOR} ]"; fi
         wget ${URL}/live/changelog -O /mnt/live/changelog 2>/dev/null;
         if [ $? -eq 0 ]; then echo -e "  Copying immudex changelog file to the disk...[ ${GREEN}OK${ENDCOLOR} ]"; fi
       else
