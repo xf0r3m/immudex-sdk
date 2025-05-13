@@ -71,15 +71,15 @@ if [ "$1" ]; then
       if [ "$2" ] && $(echo "$2" | grep -q '^http'); then
         URL="$2";
         wget ${URL}/vmlinuz -O /mnt/live/vmlinuz 2>/dev/null;
-        if [ $? -eq 0 ]; then echo -e "  Copying immudex kernel to the disk...[ ${GREEN}OK${ENDCOLOR} ]";
+        if [ $? -eq 0 ]; then echo -e "  Copying immudex kernel to the disk...[ ${GREEN}OK${ENDCOLOR} ]"; fi
         wget ${URL}/initrd -O /mnt/live/initrd 2>/dev/null;
-        if [ $? -eq 0 ]; then echo -e "  Copying immudex initrd to the disk...[ ${GREEN}OK${ENDCOLOR} ]";
+        if [ $? -eq 0 ]; then echo -e "  Copying immudex initrd to the disk...[ ${GREEN}OK${ENDCOLOR} ]"; fi
         wget ${URL}/filesystem.squashfs -O /mnt/live/filesystem.squashfs 2>/dev/null;
-        if [ $? -eq 0 ]; then echo -e "  Copying immudex filesystem.squashfs to the disk...[ ${GREEN}OK${ENDCOLOR} ]";
+        if [ $? -eq 0 ]; then echo -e "  Copying immudex filesystem.squashfs to the disk...[ ${GREEN}OK${ENDCOLOR} ]"; fi
         wget ${URL}/version -O /mnt/live/version 2>/dev/null;
-        if [ $? -eq 0 ]; then echo -e "  Copying immudex version file to the disk...[ ${GREEN}OK${ENDCOLOR} ]";
+        if [ $? -eq 0 ]; then echo -e "  Copying immudex version file to the disk...[ ${GREEN}OK${ENDCOLOR} ]"; fi
         wget ${URL}/changelog -O /mnt/live/changelog 2>/dev/null;
-        if [ $? -eq 0 ]; then echo -e "  Copying immudex changelog file to the disk...[ ${GREEN}OK${ENDCOLOR} ]";
+        if [ $? -eq 0 ]; then echo -e "  Copying immudex changelog file to the disk...[ ${GREEN}OK${ENDCOLOR} ]"; fi
       else
         echo "  Copying immudex files to the disk...";
         cp -vv /run/live/medium/live/* /mnt/live;
