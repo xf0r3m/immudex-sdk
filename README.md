@@ -36,6 +36,25 @@ są takie systemy plików tak: EXT4 oraz systemy rodziny FAT.
   Wymagana ilość dostępnego miejsca na dysku: 10G
   ```
 
+### Instalacja oraz aktualizacja sieciowa
+
+Od wersji 12.11 istnieje możliwość zainstalowania immudex lub jego aktualizacji
+przez internet przy użyciu obrazu immudex-sdk. Należy wówczas pliki takie jak
+jądro, plik `initrd`, plik changelogu oraz plik `.squashfs` umieścić w folderze
+na serwerze WWW, tak aby był osiągalnym przez protokoł HTTP/HTTPS dla
+immudex-sdk. Do instalacji należy skorzystać z poniższego polecenia:
+
+  ```
+  # immudex-install <URL>
+  ```
+
+Po wydaniu tego polecenia postępujemy zgodnie z komunikatami wyświetlanymi
+przez ten skrypt. W celach aktualizacji używamy poniższego polecenia:
+
+  ```
+  # immudex-upgrade <URL>
+  ```  
+
 ### Zastrzeżenia i uznanie autorstwa:
 
 immudex is not affiliated with Debian. Debian is a registered trademark owned 
