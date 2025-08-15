@@ -2,7 +2,7 @@
 
 # IMMutable DEbian with Xfce - SDK LiveCD
 
-## GNU/LINUX Debian stable (bookworm)
+## GNU/LINUX Debian stable
 
 To repozytorium zawiera pliki służące do tworzenia specjalnego obrazu płyty
 dostarczającego SDK do budowania dystrybucji immudex.
