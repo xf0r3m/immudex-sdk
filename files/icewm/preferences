@@ -1454,7 +1454,7 @@ WorkspaceStatusTime=0 # [0-2500]
 # DesktopBackgroundColor=""
 
 #  Desktop background image(s)
-# DesktopBackgroundImage=""
+DesktopBackgroundImage="/usr/share/images/desktop-base/d13_wallpaper.png"
 
 #  Paint the background image over all multihead monitors combined.
 # DesktopBackgroundMultihead=0 # 0/1
