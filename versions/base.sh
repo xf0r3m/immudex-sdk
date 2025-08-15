@@ -33,9 +33,13 @@ cp -vv ~/immudex-sdk/files/lightdm-gtk-greeter.conf /etc/lightdm
 if [ ! -d /usr/share/images/desktop-base ]; then
   mkdir -p /usr/share/images/desktop-base;
 fi
+if [ ! -d /usr/share/desktop-base/active-theme/wallpaper/contents/images ]; then
+  mkdir -p /usr/share/desktop-base/active-theme/wallpaper/contents/images;
+fi
 cp -vv ~/immudex-sdk/images/d13_wallpaper.png /usr/share/images/desktop-base;
+ln -s /usr/share/images/desktop-base/d13_wallpaper.png /usr/share/desktop-base/active-theme/wallpaper/contents/images/1920x1080.svg;
 cp -vv ~/immudex-sdk/images/immudex_xfce_greeter_logo.png /usr/share/images/desktop-base;
-cp -vv ~/immudex-sdk/images/lightdm_wallpaper.jpg /usr/share/images/desktop-base;
+#cp -vv ~/immudex-sdk/images/lightdm_wallpaper.jpg /usr/share/images/desktop-base;
 cp -vv ~/immudex-sdk/images/immudex-sdk.xpm /usr/share/images/desktop-base;
 
 cp -rvv ~/immudex-sdk/files/icewm /root/.icewm;

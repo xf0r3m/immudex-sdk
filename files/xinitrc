@@ -1,4 +1,4 @@
 xscreensaver -no-splash &
 conky &
-
+icewmbg --scaled=1
 exec icewm-session
