@@ -1,0 +1,9 @@
+#!/bin/bash
+
+if grep -q 'forky' /etc/os-release; then
+  echo -n '-testing'; 
+elif grep -q 'trixie' /etc/os-release; then
+  echo -n '-stable';
+else
+  echo -n '-oldstable';
+fi

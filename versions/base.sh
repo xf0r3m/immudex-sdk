@@ -59,6 +59,7 @@ cp -vv ~/immudex-sdk/tools/immudex-crypt /usr/local/bin;
 cp -vv ~/immudex-sdk/tools/immudex-create-media /usr/local/bin;
 cp -vv ~/immudex-sdk/tools/immudex-install /usr/local/bin;
 cp -vv ~/immudex-sdk/tools/immudex-upgrade /usr/local/bin;
+cp -vv ~/immudex-sdk/tools/immudex-branch /usr/local/bin;
 
 chmod +x /usr/local/bin/*;
 
